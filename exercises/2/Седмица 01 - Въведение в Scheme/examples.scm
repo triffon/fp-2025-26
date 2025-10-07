@@ -10,6 +10,9 @@
 (expt 3 4)
 (sqrt 9)
 
+(define ^ expt)
+(define % remainder)
+
 (define str "hello world")
 (define true #t)
 
