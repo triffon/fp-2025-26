@@ -117,7 +117,7 @@
 **Задача 3.1:** Напишете функция `tree-balance`, която приема дърво и проверява дали е балансирано (разликата във височините на поддърветата на всяко ниво е най-много 1).
 
 ```scheme
-(displayln (tree-balance simple-tree))
+(displayln (tree-balance simple-tree)) ; #t
 (displayln (tree-balance '(1 (2) (3))))  ; #t
 (displayln (tree-balance '(1 (2 (4)) (3)))) ; #t
 (displayln (tree-balance '(1 (2 (4 (5))) (3)))) ; #f
