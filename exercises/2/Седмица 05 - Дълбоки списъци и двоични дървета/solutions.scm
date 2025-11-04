@@ -54,8 +54,69 @@
       (+ 1 (max (height (left tree))
                 (height (right tree))))))
 
+(define (leaf? tree)
+  (and (not (empty? tree))
+       (empty? (left tree))
+       (empty? (right tree))))
 
+(define (count-leafs tree)
+  (cond ((empty? tree) 0)
+        ((leaf? tree) 1)
+        (else (+ (count-leafs (left tree))
+                 (count-leafs (right tree))))))
 
+(define (map-tree f tree)
+  (if (empty? tree) tree
+      (make-tree (f (root tree))
+                 (map-tree f (left tree))
+                 (map-tree f (right tree)))))
+
+(define (tree-to-list tree)
+  (if (empty? tree) '()
+      (append (tree-to-list (left tree))
+              (list (root tree))
+              (tree-to-list (right tree)))))
+
+(define (level n tree)
+  (cond ((empty? tree) '())
+        ((zero? n) (list (root tree)))
+        (else (append (level (- n 1)
+                             (left tree))
+                      (level (- n 1)
+                             (right tree))))))
+
+(define (cons#f a b)
+  (and b (cons a b)))
+
+(define (path-to x tree)
+  (cond ((empty? tree) #f)
+        ((equal? x (root tree)) (list (root tree)))
+        (else (cons#f (root tree)
+                      (or (path-to x (left tree))
+                          (path-to x (right tree)))))))
+
+(define derivation-tree (make-tree +
+                                   (make-tree -
+                                              (make-tree +
+                                                         (make-leaf 5)
+                                                         (make-leaf 7))
+                                              (make-leaf 3))
+                                   (make-tree *
+                                              (make-tree +
+                                                         (make-tree /
+                                                                    (make-leaf 20)
+                                                                    (make-leaf 4))
+                                                         (make-leaf 9))
+                                              (make-leaf 6))))
+
+(define (calculate tree)
+  (cond ((empty? tree) #f)
+        ((leaf? tree) (root tree))
+        (else ((root tree)
+               (calculate (left tree))
+               (calculate (right tree))))))
+
+               
 
 
 
