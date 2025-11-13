@@ -33,3 +33,37 @@
         (else (find-stream p? (tail s)))))
 
 (define bigs (enum 1 (fact 10000)))
+
+(define (from n) (cons-stream n (from (+ n 1))))
+(define nats (from 0))
+
+(define (generate-fibs a b)
+  (cons-stream a (generate-fibs b (+ a b))))
+
+(define fibs (generate-fibs 0 1))
+
+(define (map-stream f s)
+  (cons-stream (f (head s)) (map-stream f (tail s))))
+
+(define (filter-stream p? s)
+  (if (p? (head s))
+      (cons-stream (head s) (filter-stream p? (tail s)))
+      (filter-stream p? (tail s))))
+
+(define (zip-streams op s1 s2)
+  (cons-stream (op (head s1) (head s2)) (zip-streams op (tail s1) (tail s2))))
+
+(define ones (cons-stream 1 ones))
+
+(define nats (cons-stream 0 (zip-streams + nats ones)))
+
+(define fibs (cons-stream 0 (cons-stream 1 (zip-streams + fibs (tail fibs)))))
+
+;; !!! (define x (+ x 2))
+
+(define (nondivisor d) (lambda (n) (> (remainder n d) 0)))
+
+(define (sieve stream)
+  (cons-stream (head stream) (sieve (filter-stream (nondivisor (head stream)) (tail stream)))))
+
+(define primes (sieve (from 2)))
