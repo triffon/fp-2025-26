@@ -68,3 +68,17 @@ fact n
 
 -- >>> :t error
 -- error :: HasCallStack => [Char] -> a
+
+-- >>> u
+-- 7
+u = v + w
+  where v = 2
+        w = 5
+
+-- >>> 2 + let x = 5 in x + 8
+-- 15
+
+x !@#%^& y = 2 * (x + y)
+
+-- >>> 5 !@#%^& 8
+-- 26
