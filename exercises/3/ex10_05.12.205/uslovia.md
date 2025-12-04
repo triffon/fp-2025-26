@@ -98,13 +98,13 @@ main = putStrLn "Hello, World!"
 ```
 Можете да пуснете вашата програма по следните начини:
 - Чрез компилиране и изпълнение
-```
+```bash
 $ ghc ex_10.hs -o ex10
 $ ./ex10
 Hello, World!
 ```
 - Чрез интерпретатора
-```
+```bash
 $ ghci ex_10.hs
 GHCi, version 9.6.7: https://www.haskell.org/ghc/  :? for help
 [1 of 2] Compiling Main             ( ex_10.hs, interpreted )
