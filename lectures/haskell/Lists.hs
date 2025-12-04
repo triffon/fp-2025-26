@@ -20,8 +20,12 @@ null [] = True
 null _  = False
 
 length :: [a] -> Int
+{-
 length []     = 0
 length (_:xs) = 1 + length xs
+-}
+
+length = foldr (const (+1)) 0
 
 -- >>> length [1,2,3]
 -- 3
@@ -50,15 +54,23 @@ enumFromTo a b
 -- In a stmt of an interactive GHCi command: evalPrint it_aQPo
 
 (++) :: [a] -> [a] -> [a]
+{-
 []     ++ l = l
 (x:xs) ++ l = x : xs ++ l
+-}
+
+l1 ++ l2 = foldr (:) l2 l1 
 
 -- >>> [1..3] ++ [5..7]
 -- [1,2,3,5,6,7]
 
 reverse :: [a] -> [a]
+{-
 reverse []     = []
 reverse (x:xs) = reverse xs ++ [x]
+-}
+
+reverse = foldr (\x -> (++[x])) []
 
 -- >>> reverse [[1..5],[7..1x0],[11..15]]
 -- [[11,12,13,14,15],[7,8,9,10],[1,2,3,4,5]]
@@ -89,8 +101,12 @@ reverse (x:xs) = reverse xs ++ [x]
 -- Не можем да индексираме празен списък!
 
 elem :: Eq t => t -> [t] -> Bool
+{-
 elem _ [] = False
 elem x (y:ys) = x == y || elem x ys
+-}
+
+elem x = foldr (\y -> (x == y||)) False
 
 -- !!!! elem x (x:_) = True
 {-
@@ -151,7 +167,7 @@ init [_]    = []
 init (x:xs) = x:init xs
 
 -- >>> init [1..5]
--- [1,2,3,4]
+-- [1,2,3,4,5]
 
 last :: [t] -> t
 last [x]    = x
@@ -183,21 +199,32 @@ drop n (_:xs) = drop (n-1) xs
 -- []
 
 map :: (t -> a) -> [t] -> [a]
+{-
 map _ []     = []
 map f (x:xs) = f x:map f xs
+-}
+
+map f = foldr (\x -> (f x:)) []
 
 -- >>> map (+1) [1..5]
 -- [2,3,4,5,6]
 
 filter :: (a -> Bool) -> [a] -> [a]
+
+{-
 filter _ [] = []
 filter p (x:xs)
  | p x       = x:rest
  | otherwise = rest
    where rest = filter p xs
+filter p (x:xs) = if p x then x:rest else rest
+   where rest = filter p xs
+-}
 
--- >>> filter odd [1..10]
--- [1,3,5,7,9]
+filter p = foldr (\x -> if p x then (x:) else id) []
+
+-- >>> filter odd [1..12]
+-- [1,3,5,7,9,11]
 
 -- >>> [ (x, y) | x <- [1..3], y <- [5..7]]
 -- [(1,5),(1,6),(1,7),(2,5),(2,6),(2,7),(3,5),(3,6),(3,7)]
