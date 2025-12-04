@@ -1,7 +1,8 @@
 module Lists where
 
 import Prelude hiding (head, tail, null, length, enumFromTo,
-                      (++), reverse, (!!), elem, init, last, take, drop)
+                      (++), reverse, (!!), elem, init, last, take, drop,
+                      map, filter, foldr, foldl, foldr1, foldl1)
 
 head :: [a] -> a
 head (h:_) = h
@@ -181,3 +182,32 @@ drop n (_:xs) = drop (n-1) xs
 -- >>> drop 20 [1..10]
 -- []
 
+map :: (t -> a) -> [t] -> [a]
+map _ []     = []
+map f (x:xs) = f x:map f xs
+
+-- >>> map (+1) [1..5]
+-- [2,3,4,5,6]
+
+filter :: (a -> Bool) -> [a] -> [a]
+filter _ [] = []
+filter p (x:xs)
+ | p x       = x:rest
+ | otherwise = rest
+   where rest = filter p xs
+
+-- >>> filter odd [1..10]
+-- [1,3,5,7,9]
+
+-- >>> [ (x, y) | x <- [1..3], y <- [5..7]]
+-- [(1,5),(1,6),(1,7),(2,5),(2,6),(2,7),(3,5),(3,6),(3,7)]
+
+-- >>> concat (map (\x -> map (\y -> (x, y)) [5..7]) [1..3])
+-- [(1,5),(1,6),(1,7),(2,5),(2,6),(2,7),(3,5),(3,6),(3,7)]
+
+foldr :: (t1 -> t2 -> t2) -> t2 -> [t1] -> t2
+foldr _  nv []     = nv
+foldr op nv (x:xs) = x `op` foldr op nv xs
+
+-- >>> foldr (+) 0 [1..5]
+-- 15
