@@ -2,7 +2,9 @@ module Lists where
 
 import Prelude hiding (head, tail, null, length, enumFromTo,
                       (++), reverse, (!!), elem, init, last, take, drop,
-                      map, filter, foldr, foldl, foldr1, foldl1)
+                      map, filter, foldr, foldl, foldr1, foldl1,
+                      scanl, scanr)
+import Hello (x)
 
 head :: [a] -> a
 head (h:_) = h
@@ -70,10 +72,14 @@ reverse []     = []
 reverse (x:xs) = reverse xs ++ [x]
 -}
 
-reverse = foldr (\x -> (++[x])) []
+-- reverse = foldr (\x -> (++[x])) []
 
--- >>> reverse [[1..5],[7..1x0],[11..15]]
--- [[11,12,13,14,15],[7,8,9,10],[1,2,3,4,5]]
+rcons :: [a] -> a -> [a]
+rcons xs x = x : xs
+reverse = foldl rcons []
+
+-- >>> reverse [[1..5],[7..11],[11..15]]
+-- [[11,12,13,14,15],[7,8,9,10,11],[1,2,3,4,5]]
 
 -- >>> reverse [1..10]
 -- [10,9,8,7,6,5,4,3,2,1]
@@ -166,12 +172,17 @@ init :: [a] -> [a]
 init [_]    = []
 init (x:xs) = x:init xs
 
+
 -- >>> init [1..5]
 -- [1,2,3,4,5]
 
 last :: [t] -> t
+{-
 last [x]    = x
 last (_:xs) = last xs
+-}
+-- last = foldr1 (\x r -> r)
+last = foldr1 (const id)
 
 -- >>> last [1..5]
 -- 5
@@ -238,3 +249,54 @@ foldr op nv (x:xs) = x `op` foldr op nv xs
 
 -- >>> foldr (+) 0 [1..5]
 -- 15
+
+foldl :: (t1 -> t2 -> t1) -> t1 -> [t2] -> t1
+foldl _ nv [] = nv
+foldl op nv (x:xs) = foldl op (nv `op` x) xs
+
+-- >>> foldl (+) 0 [1..5]
+-- 15
+
+-- >>> :t (:)
+-- (:) :: a -> [a] -> [a]
+-- >>> foldl (:) [] [1..5]
+-- Couldn't match type `a_a5qgp[sk:1]' with `[a_a5qgp[sk:1]]'
+-- Expected: [a_a5qgp[sk:1]] -> [[a_a5qgp[sk:1]]] -> [a_a5qgp[sk:1]]
+--   Actual: [a_a5qgp[sk:1]] -> [[a_a5qgp[sk:1]]] -> [[a_a5qgp[sk:1]]]
+-- `a_a5qgp[sk:1]' is a rigid type variable bound by
+--   the inferred type of it_a5qeC :: [a_a5qgp[sk:1]]
+--   at /home/trifon/fmisync/Courses/2025_26/FP_2025_26/fp-2025-26/lectures/haskell/Lists.hs:251:2-20
+-- In the first argument of `foldl', namely `(:)'
+-- In the expression: foldl (:) [] [1 .. 5]
+-- In an equation for `it_a5qeC': it_a5qeC = foldl (:) [] [1 .. 5]
+-- Relevant bindings include
+--   it_a5qeC :: [a_a5qgp[sk:1]]
+--     (bound at /home/trifon/fmisync/Courses/2025_26/FP_2025_26/fp-2025-26/lectures/haskell/Lists.hs:251:2)
+
+foldr1 :: (t -> t -> t) -> [t] -> t
+foldr1 op [x]    = x
+foldr1 op (x:xs) =  x `op` foldr1 op xs
+
+-- >>> foldr1 (+) [1..5]
+-- 15
+
+foldl1 :: (t2 -> t2 -> t2) -> [t2] -> t2
+foldl1 op (x:xs) = foldl op x xs
+
+scanr :: (t -> a -> a) -> a -> [t] -> [a]
+{-
+scanr op nv [] = [nv]
+scanr op nv (x:xs) = x `op` hr:rest
+  where rest@(hr:_) = scanr op nv xs
+-}
+scanr op nv = foldr (\x rest@(hr:_) -> x `op` hr:rest) [nv]
+
+-- >>> scanr (+) 0 [1..6]
+-- [21,20,18,15,11,6,0]
+
+scanl :: (t1 -> t2 -> t1) -> t1 -> [t2] -> [t1]
+scanl op nv [] = [nv]
+scanl op nv (x:xs) = nv:scanl op (nv `op` x) xs
+
+-- >>> scanl (+) 0 [1..6]
+-- [0,1,3,6,10,15,21]
