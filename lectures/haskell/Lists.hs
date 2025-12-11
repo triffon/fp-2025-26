@@ -328,3 +328,6 @@ zipWith op (x:xs) (y:ys) = op x y : zipWith op xs ys
 
 takeWhile :: (a -> Bool) -> [a] -> [a]
 takeWhile p = foldr (\x r -> if p x then x : r else []) []
+
+allPythagoreanTriples = [ (x, y, z) | z <- [1..], y <- [1..z-1], x <- [1..y-1],
+                                       x^2 + y^2 == z^2, gcd x y == 1 ]
