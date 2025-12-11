@@ -3,8 +3,7 @@ module Lists where
 import Prelude hiding (head, tail, null, length, enumFromTo,
                       (++), reverse, (!!), elem, init, last, take, drop,
                       map, filter, foldr, foldl, foldr1, foldl1,
-                      scanl, scanr)
-import Hello (x)
+                      scanl, scanr, zip, unzip, zipWith, takeWhile)
 
 head :: [a] -> a
 head (h:_) = h
@@ -300,3 +299,32 @@ scanl op nv (x:xs) = nv:scanl op (nv `op` x) xs
 
 -- >>> scanl (+) 0 [1..6]
 -- [0,1,3,6,10,15,21]
+
+-- >>> zip [1..10] [20..24]
+-- [(1,20),(2,21),(3,22),(4,23),(5,24)]
+
+zip :: [a] -> [b] -> [(a, b)]
+zip = zipWith (,)
+
+-- >>> unzip (zip [1..10] [20..24])
+-- ([1,2,3,4,5],[20,21,22,23,24])
+ 
+unzip :: [(a1, a2)] -> ([a1], [a2])
+unzip = foldr (\(x,y) (xs,ys)-> (x:xs,y:ys)) ([], [])
+
+-- >>> unzip [(1,20),(2,21),(3,22),(4,23),(5,24)]
+-- ([1,2,3,4,5],[20,21,22,23,24])
+
+zipWith :: (t1 -> t2 -> a) -> [t1] -> [t2] -> [a]
+zipWith _  [] _  = []
+zipWith _  _  [] = []
+zipWith op (x:xs) (y:ys) = op x y : zipWith op xs ys
+
+-- >>> takeWhile (<3) [1,2,3,0,8]
+-- [1,2]
+
+-- >>> dropWhile (<3) [1,2,3,0,8]
+-- [3,0,8]
+
+takeWhile :: (a -> Bool) -> [a] -> [a]
+takeWhile p = foldr (\x r -> if p x then x : r else []) []
