@@ -351,3 +351,88 @@ Nil         +++ l = l
 
 --- >>> fromList $ l +++ l
 -- [1,2,3,1,2,3]
+
+data BinTree a = Empty | Node { root :: a, left, right :: BinTree a }
+    deriving (Eq, Ord, Read, Show)
+
+leafBin x = Node x Empty Empty
+
+t = Node 1 (leafBin 3) (leafBin 5)
+
+depth :: BinTree a -> Integer
+depth Empty = 0
+depth (Node _ l r) = 1 + max (depth l) (depth r)
+
+-- >>> depth t
+-- 2
+
+leaves :: BinTree a -> [a]
+leaves Empty = []
+leaves (Node x Empty Empty) = [x]
+leaves (Node _ l r) = leaves l ++ leaves r
+
+-- >>> leaves t
+-- [3,5]
+
+mapBinTree :: (a -> b) -> BinTree a -> BinTree b
+mapBinTree _ Empty = Empty
+mapBinTree f (Node x l r) = Node (f x) (mapBinTree f l) (mapBinTree f r)
+
+-- >>> mapBinTree (+1) t
+-- Node {root = 2, left = Node {root = 4, left = Empty, right = Empty}, right = Node {root = 6, left = Empty, right = Empty}}
+
+mapMaybe :: (a -> b) -> Maybe a -> Maybe b
+mapMaybe _ Nothing = Nothing
+mapMaybe f (Just x) = Just (f x)
+
+data Tree a =  Tree { rootTree :: a, subtrees :: TreeList a }
+    deriving (Eq, Ord, Read, Show)
+
+data TreeList a = None | SubTree { firstTree :: Tree a, restTrees :: TreeList a }
+    deriving (Eq, Ord, Read, Show)
+
+leaf x = Tree x None
+tree = Tree 1 $ SubTree (leaf 2)
+              $ SubTree (Tree 3 $ SubTree (leaf 4) $ None)
+              $ SubTree (leaf 5) $ None
+
+-- >>> tree
+-- Tree {rootTree = 1, subtrees = SubTree {firstTree = Tree {rootTree = 2, subtrees = None}, restTrees = SubTree {firstTree = Tree {rootTree = 3, subtrees = SubTree {firstTree = Tree {rootTree = 4, subtrees = None}, restTrees = None}}, restTrees = SubTree {firstTree = Tree {rootTree = 5, subtrees = None}, restTrees = None}}}}
+
+level :: Integer -> Tree a -> [a]
+level 0 (Tree x _) = [x]
+level n (Tree _ ts) = levelTrees (n - 1) ts
+
+levelTrees :: Integer -> TreeList a -> [a]
+levelTrees _ None         = []
+levelTrees n (SubTree t ts) = level n t ++ levelTrees n ts
+
+-- >>> level 0 tree
+-- [1]
+
+-- >>> map (`level` tree) [0..4]
+-- [[1],[2,3,5],[4],[],[]]
+
+data SExpr = SBool Bool | SChar Char | SInt Int |
+             SDouble Double | SList { list :: [SExpr] }
+             deriving (Eq, Ord, Show, Read)
+
+sexpr = SList [SInt 2, SChar 'a', SList [SBool True, SDouble 1.2, SList []]]
+
+countAtoms :: SExpr -> Integer
+countAtoms (SList ses) = sum $ map countAtoms ses
+countAtoms _           = 1
+
+-- >>> countAtoms sexpr
+-- 4
+
+sconcat :: [SExpr] -> SExpr
+sconcat ses = SList $ concatMap list ses
+
+flatten :: SExpr -> SExpr
+-- collect :: SExpr -> [SExpr]
+flatten (SList ses) = sconcat $ map flatten ses
+flatten atom        = SList [atom]
+
+-- >>> flatten sexpr
+-- SList {list = [SInt 2,SChar 'a',SBool True,SDouble 1.2]}
