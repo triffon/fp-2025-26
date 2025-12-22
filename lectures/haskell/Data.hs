@@ -148,6 +148,7 @@ instance Measurable a => Measurable [a] where
 -- "a", "aa", "aaa", "aaaa", ... 
 
 data Weekday = Mon | Tue | Wed | Thu | Fri | Sat | Sun
+    deriving (Eq, Ord, Enum, Read, Show)
 
 today :: Weekday
 today = Wed
@@ -159,13 +160,22 @@ today = Wed
 -- Weekday :: *
 
 -- >>> today
--- No instance for `Show Weekday' arising from a use of `evalPrint'
--- In a stmt of an interactive GHCi command: evalPrint it_a15Pu
+-- Wed
 
 -- >>> today == Thu
--- No instance for `Eq Weekday' arising from a use of `=='
--- In the expression: today == Thu
--- In an equation for `it_a18sl': it_a18sl = today == Thu
+-- False
+
+-- >>> Mon < Sun
+-- True
+
+-- >>> [Mon .. Fri]
+-- [Mon,Tue,Wed,Thu,Fri]
+
+x :: Weekday
+x = read "Mon"
+
+-- >>> x
+-- Mon
 
 data Unit = Unit
 
@@ -176,6 +186,7 @@ type Name = String
 type Score = Int
 -- data Player = Player Name Score
 data Player = Player { name :: Name, score :: Score }
+    deriving (Eq, Ord, Read, Show)
 
 -- >>> :t Player
 -- Player :: Name -> Score -> Player
@@ -187,12 +198,18 @@ katniss :: Player
 -- katniss = Player "Katniss Everdeen" 45
 katniss = Player { score = 45, name = "Katniss Everdeen" }
 
+mario :: Player
+mario = Player { score = 30, name = "Mario" }
+
+-- >>> katniss < mario
+-- True
+
+
 -- >>> :t katniss
 -- katniss :: Player
 
 -- >>> katniss
--- No instance for `Show Player' arising from a use of `evalPrint'
--- In a stmt of an interactive GHCi command: evalPrint it_aEp0
+-- Player {name = "Katniss Everdeen", score = 45}
 
 -- >>> name katniss
 -- "Katniss Everdeen"
@@ -201,12 +218,19 @@ katniss = Player { score = 45, name = "Katniss Everdeen" }
 -- name :: Player -> Name
 
 data Shape = Circle { radius :: Double } | Rectangle { width, height :: Double }
+    deriving (Eq, Ord, Read, Show)
 
 circle :: Shape
 circle = Circle 2.3
 
+-- >>> circle
+-- Circle {radius = 2.3}
+
 rectangle :: Shape
 rectangle = Rectangle 5.8 3.5
+
+-- >>> circle < rectangle
+-- True
 
 area :: Shape -> Double
 area (Circle r) = pi * r * r
