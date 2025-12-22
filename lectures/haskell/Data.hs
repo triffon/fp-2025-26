@@ -174,9 +174,48 @@ data Unit = Unit
 
 type Name = String
 type Score = Int
-data Player = Player Name Score
+-- data Player = Player Name Score
+data Player = Player { name :: Name, score :: Score }
 
 -- >>> :t Player
 -- Player :: Name -> Score -> Player
 
 -- >>> :k Player
+-- Player :: *
+
+katniss :: Player
+-- katniss = Player "Katniss Everdeen" 45
+katniss = Player { score = 45, name = "Katniss Everdeen" }
+
+-- >>> :t katniss
+-- katniss :: Player
+
+-- >>> katniss
+-- No instance for `Show Player' arising from a use of `evalPrint'
+-- In a stmt of an interactive GHCi command: evalPrint it_aEp0
+
+-- >>> name katniss
+-- "Katniss Everdeen"
+
+-- >>> :t name
+-- name :: Player -> Name
+
+data Shape = Circle { radius :: Double } | Rectangle { width, height :: Double }
+
+circle :: Shape
+circle = Circle 2.3
+
+rectangle :: Shape
+rectangle = Rectangle 5.8 3.5
+
+area :: Shape -> Double
+area (Circle r) = pi * r * r
+area (Rectangle w h) = w * h
+
+-- >>> area circle
+-- 16.619025137490002
+
+-- >>> area rectangle
+-- 20.3
+
+-- data MyPair a b = MyPair a b
