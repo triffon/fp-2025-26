@@ -242,4 +242,112 @@ area (Rectangle w h) = w * h
 -- >>> area rectangle
 -- 20.3
 
--- data MyPair a b = MyPair a b
+-- >>> :t Just 5
+-- Just 5 :: Num a => Maybe a
+
+-- >>> :t (!!)
+-- (!!) :: HasCallStack => [a] -> Int -> a
+
+--- >>> :k Maybe
+-- Maybe :: * -> *
+
+data MyPair a b = MyPair a b
+  deriving (Eq, Ord, Read, Show)
+
+-- >>> :t MyPair
+-- MyPair :: a -> b -> MyPair a b
+
+-- >>> :k MyPair
+-- MyPair :: * -> * -> *
+
+-- >>> :k Either
+-- Either :: * -> * -> *
+
+data Nat = Zero | Succ Nat
+  deriving (Eq, Ord, Read, Show)
+
+one = Succ Zero
+two = Succ $ Succ Zero
+-- >>> one > Zero
+-- True
+
+-- >>> two > one
+-- True
+
+fromNat :: Nat -> Integer
+fromNat Zero = 0
+fromNat (Succ n) = 1 + fromNat n
+
+-- >>> fromNat two
+-- 2
+
+toNat :: Integer -> Nat
+toNat 0 = Zero
+toNat n
+  | n > 0 = Succ $ toNat $ n - 1
+
+-- >>> toNat 10
+-- Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ Zero)))))))))
+
+plusNat :: Nat -> Nat -> Nat
+plusNat Zero n = n
+plusNat (Succ m) n = Succ $ plusNat m n
+
+-- >>> fromNat $ plusNat (toNat 5) (toNat 8)
+-- 13
+
+data Bin = One | BitZero Bin | BitOne Bin
+  deriving (Eq, Ord, Read, Show)
+
+six = BitZero $ BitOne $ One
+
+fromBin :: Bin -> Integer
+fromBin One = 1
+fromBin (BitZero b) = 2 * fromBin b
+fromBin (BitOne  b) = 2 * fromBin b + 1
+
+-- >>> fromBin six
+-- 6
+
+-- data RealBin = Zero | Pos Bin = Maybe Bin
+
+toBin :: Integer -> Bin
+toBin 1 = One
+toBin n
+  | even n    = BitZero $ toBin $ n `div` 2
+  | otherwise = BitOne  $ toBin $ n `div` 2
+
+-- >>> toBin 120
+-- BitZero (BitZero (BitZero (BitOne (BitOne (BitOne One)))))
+
+succBin :: Bin -> Bin
+succBin One = BitZero One
+succBin (BitZero b) = BitOne b
+succBin (BitOne  b) = BitZero (succBin b)
+
+-- >>> fromBin $ succBin $ toBin 5 
+-- 6
+
+--- data ([] a) = [] | (:) { head : a, tail : [a] } deriving (Eq, Ord, Read, Show)
+
+data List a = Nil | Cons { listHead :: a, listTail :: List a }
+    deriving (Eq, Ord, Read, Show)
+
+l = Cons 1 $ Cons 2 $ Cons 3 $ Nil
+
+-- >>> l
+-- Cons {listHead = 1, listTail = Cons {listHead = 2, listTail = Cons {listHead = 3, listTail = Nil}}}
+
+fromList :: List a -> [a]
+fromList Nil = []
+fromList (Cons x xs) = x : fromList xs
+
+-- >>> :k List
+-- List :: * -> *
+
+(+++) :: List a -> List a -> List a
+Nil         +++ l = l
+(Cons x xs) +++ l = Cons x (xs +++ l)
+
+--- >>> fromList $ l +++ l
+-- [1,2,3,1,2,3]
