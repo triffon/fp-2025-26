@@ -99,7 +99,7 @@ data TrafficLight = RedLight | YellowLight | GreenLight
   -- Искаме Eq да работи стандартно
   deriving (Eq)
 
--- Но искаме Show да извежда нещо специално на български
+-- Но искаме Show да извежда нещо специално
 instance Show TrafficLight where
   show RedLight = "Stop!"
   show YellowLight = "Ready..."
