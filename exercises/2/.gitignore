@@ -40,3 +40,5 @@ cabal.project.local~
 
 prelimitary.*
 Prelimitary.*
+
+*.txt
