@@ -10,3 +10,8 @@ readAndSum n = do putStrLn "Моля, въведете число: "
                   x <- getInt
                   s <- readAndSum (n-1)
                   return (x + s)
+
+readInt :: String -> IO Int
+readInt s = do putStrLn $ "Моля, въведете " ++ s ++ ": "
+               getInt
+
