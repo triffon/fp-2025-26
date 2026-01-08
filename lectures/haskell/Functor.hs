@@ -1,0 +1,117 @@
+module Functor where
+
+import Prelude hiding (Functor, fmap, (<$>))
+
+-- >>> :k Functor
+-- Functor :: (* -> *) -> Constraint
+
+class Functor f where
+   fmap :: (a -> b) -> f a -> f b
+   fmap = (<$>)
+
+   (<$>) :: (a -> b) -> f a -> f b
+   (<$>) = fmap
+
+instance Functor Maybe where
+   -- fmap :: (a -> b) -> Maybe a -> Maybe b
+   fmap _ Nothing  = Nothing
+   fmap f (Just x) = Just $ f x
+
+-- >>> (+1) $ 3 
+-- 4
+
+-- >>> (+1) $ Just 3
+-- No instance for `Num (Maybe Integer)'
+--   arising from a use of `it_aGKN'
+-- In the first argument of `evalPrint', namely `it_aGKN'
+-- In a stmt of an interactive GHCi command: evalPrint it_aGKN
+
+-- >>> fmap (+1) (Just 3)
+-- Just 4
+
+-- >>> (+1) <$> Just 3
+-- Just 4
+
+-- >>> :k (,)
+-- (,) :: * -> * -> *
+
+-- >>> :k (,) Int
+-- (,) Int :: * -> *
+
+instance Functor ((,) a) where
+    -- >>> fmap :: (b -> c) -> (a, b) -> (a, c)
+    f <$> (x, y) = (x, f y)
+
+-- >>> (+1) <$> (2, 5)
+-- (2,6)
+
+newtype ReversedPair a b = ReversedPair (b, a)
+  deriving Show
+
+instance Functor (ReversedPair b) where
+    -- >>> fmap :: (a -> c) -> ReversedPair b a -> ReversedPair b c
+    fmap f (ReversedPair (x, y)) = ReversedPair (f x, y)
+
+-- >>> (+1) <$> ReversedPair (2, 5)
+-- ReversedPair (3,5)
+
+instance Functor (Either a) where
+--  fmap :: (b -> c) -> Either a b -> Either a c
+  _ <$> Left x  = Left x
+  f <$> Right y = Right $ f y
+
+-- >>> (+1) <$> Left "err"
+-- Left "err"
+
+-- >>> (+1) <$> Right 3
+-- Right 4
+
+instance Functor [] where
+    fmap = map
+
+-- >>> (+1) <$> [1..5]
+-- [2,3,4,5,6]
+
+data BinTree a = Empty | Node { root :: a, left, right :: BinTree a }
+    deriving (Eq, Ord, Read, Show)
+
+leafBin x = Node x Empty Empty
+t = Node 1 (leafBin 3) (leafBin 5)
+
+depth :: BinTree a -> Integer
+depth Empty = 0
+depth (Node _ l r) = 1 + max (depth l) (depth r)
+
+-- >>> depth t
+-- 2
+
+leaves :: BinTree a -> [a]
+leaves Empty = []
+leaves (Node x Empty Empty) = [x]
+leaves (Node _ l r) = leaves l ++ leaves r
+
+-- >>> leaves t
+-- [3,5]
+
+mapBinTree :: (a -> b) -> BinTree a -> BinTree b
+mapBinTree _ Empty = Empty
+mapBinTree f (Node x l r) = Node (f x) (mapBinTree f l) (mapBinTree f r)
+
+instance Functor BinTree where
+    fmap = mapBinTree
+
+-- >>> (+1) <$> t
+-- Node {root = 2, left = Node {root = 4, left = Empty, right = Empty}, right = Node {root = 6, left = Empty, right = Empty}}
+
+instance Functor ((->) r) where
+--    fmap :: (a -> b) -> (r -> a) -> r -> b
+    fmap = (.)
+
+-- >>> ((+1) <$> (*2)) 5
+-- 11
+
+instance Functor IO where
+--    fmap :: (a -> b) -> IO a -> IO b
+   fmap f io = do x <- io
+                  return $ f x
+
