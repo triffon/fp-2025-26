@@ -1,6 +1,7 @@
 module Functor where
 
-import Prelude hiding (Functor, fmap, (<$>))
+import Prelude hiding (Functor, fmap, (<$>),
+                       Applicative, pure, (<*>))
 
 -- >>> :k Functor
 -- Functor :: (* -> *) -> Constraint
@@ -114,4 +115,57 @@ instance Functor IO where
 --    fmap :: (a -> b) -> IO a -> IO b
    fmap f io = do x <- io
                   return $ f x
+
+
+class Functor f => Applicative f where
+  pure  :: a -> f a
+  (<*>) :: f (a -> b) -> f a -> f b
+  -- fmap = (<*>) . pure
+
+instance Applicative Maybe where
+  -- pure  :: a -> Maybe a
+  -- (<*>) :: Maybe (a -> b) -> Maybe a -> Maybe b
+    pure = Just
+    Nothing <*> _ = Nothing
+    _ <*> Nothing = Nothing
+    Just f <*> Just x = Just $ f x
+
+-- >>> (+) <$> Just 2 <*> Just 3
+-- Just 5
+
+instance Applicative (Either a) where
+--   pure  :: b -> Either a b
+--  (<*>) :: Either a (b -> c) -> Either a b -> Either b c
+   pure = Right
+   Left x <*> _ = Left x
+   _ <*> Left x = Left x
+   Right f <*> Right x = Right $ f x
+
+
+-- >>> (+) <$> Right 2 <*> Right 3
+-- Right 5
+
+-- >>> (+) <$> Left "error" <*> Right 3
+-- Left "error"
+
+-- >>> (+) <$> Left "error1" <*> Left "error2"
+-- Left "error1"
+
+instance Applicative [] where
+  -- pure  :: a -> [a]
+  -- (<*>) :: [a -> b] -> [a] -> [b]
+  pure x = [x]
+  fs <*> xs = [ f x | f <- fs, x <- xs ]
+
+-- >>> (+) <$> [1,2,3] <*> [10, 20, 30]
+-- [11,21,31,12,22,32,13,23,33]
+
+instance Applicative ((->) r) where
+  -- pure  :: a -> r -> a
+  -- (<*>) :: (r -> a -> b) -> (r -> a) -> r -> b
+  pure = const
+  (f <*> g) x = f x (g x)
+
+-- >>> ((+) <$> (*2) <*> (^3)) 3
+-- 33
 
