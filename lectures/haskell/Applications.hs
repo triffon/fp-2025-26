@@ -3,13 +3,14 @@ module Applications where
 import Prelude hiding ((*>), lookup)
 import Control.Applicative hiding ((*>))
 import Data.Maybe
-import Data (x)
+
+guard :: (a -> Bool) -> a -> Maybe a
+guard p x = if p x then Just x else Nothing 
 
 search :: (a -> Bool) -> [a] -> Maybe a 
 search _ [] = Nothing
-search p (x:xs)
-  | p x = Just x
-  | otherwise = search p xs
+search p (x:xs) = guard p x <|> search p xs
+
 -- >>> search odd [1..5]
 -- Just 1
 
@@ -73,3 +74,42 @@ parent x = fmap fst . search (elem x . snd)
 
 -- >>> parent 1 t
 -- Nothing
+
+type BinTree a = AL a (a,a)
+
+bt = [(1,(2,3)),(2,(4,7)),(3,(6,7))]
+
+findPath :: Eq a => a -> a -> BinTree a -> Maybe [a]
+findPath x y t
+  | x == y = Just [x]
+  | otherwise = lookup x t *> ((x :) <$> (findPath l y t <|> findPath r y t))
+   where Just (l, r) = lookup x t 
+
+-- >>> findPath 1 7 bt
+-- Just [1,2,7]
+
+-- >>> :t maybeToList
+-- maybeToList :: Maybe a -> [a]
+
+-- >>> maybeToList Nothing
+-- []
+
+-- >>> maybeToList $ Just 2
+-- [2]
+
+
+findAllPaths :: Eq a => a -> a -> BinTree a -> [[a]]
+findAllPaths x y t
+  | x == y = [[x]]
+  | otherwise = maybeToList (lookup x t) *> ((x :) <$> (findAllPaths l y t <|> findAllPaths r y t))
+   where Just (l, r) = lookup x t 
+
+
+-- >>> findAllPaths 1 7 bt
+-- Couldn't match type: [Integer]
+--                with: (Integer, Integer)
+-- Expected: BinTree Integer
+--   Actual: [(Integer, [Integer])]
+-- In the third argument of `findAllPaths', namely `t'
+-- In the expression: findAllPaths 1 7 t
+-- In an equation for `it_a7zpq': it_a7zpq = findAllPaths 1 7 t
