@@ -1,7 +1,8 @@
 module Functor where
 
 import Prelude hiding (Functor, fmap, (<$>),
-                       Applicative, pure, (<*>))
+                       Applicative, pure, (<*>), liftA2, sequenceA,
+                       Alternative, empty, (<|>))
 
 -- >>> :k Functor
 -- Functor :: (* -> *) -> Constraint
@@ -155,7 +156,8 @@ instance Applicative [] where
   -- pure  :: a -> [a]
   -- (<*>) :: [a -> b] -> [a] -> [b]
   pure x = [x]
-  fs <*> xs = [ f x | f <- fs, x <- xs ]
+  -- fs <*> xs = [ f x | f <- fs, x <- xs ]
+  fs <*> xs = concatMap (<$> xs) fs
 
 -- >>> (+) <$> [1,2,3] <*> [10, 20, 30]
 -- [11,21,31,12,22,32,13,23,33]
@@ -169,3 +171,47 @@ instance Applicative ((->) r) where
 -- >>> ((+) <$> (*2) <*> (^3)) 3
 -- 33
 
+instance Applicative IO where
+  pure = return
+  -- (<*>) :: IO (a -> b) -> IO a -> IO b
+  fio <*> xio = do f <- fio
+                   x <- xio
+                   return $ f x
+
+liftA2 :: Applicative f => (a1 -> a2 -> b) -> f a1 -> f a2 -> f b
+liftA2 f x y = f <$> x <*> y
+
+-- >>> liftA2 (+) (Just 2) (Just 3)
+-- Just 5
+
+-- >>> (+) 2 3
+-- 5
+
+-- >>> sequenceA [Just 2, Just 3, Just 5]
+-- Just [2,3,5]
+
+-- >>> sequenceA [Just 2, Nothing, Just 5]
+-- Nothing
+
+
+-- >>> sequenceA [] :: Maybe [a]
+-- Just []
+
+sequenceA :: Applicative f => [f a] -> f [a]
+{-
+sequenceA []     = pure []
+sequenceA (x:xs) = liftA2 (:) x $ sequenceA xs
+-}
+sequenceA = foldr (liftA2 (:)) $ pure []
+
+-- liftA2 (:) Just 2 Just [3, 5] ---> Just [2,3,5]
+-- 2 : [3,5]   --> [2,3,5]
+
+-- >>> sequenceA [[5,6]]
+-- [[5],[6]]
+
+-- >>> sequenceA [[3,4],[5,6]]
+-- [[3,5],[3,6],[4,5],[4,6]]
+
+-- >>> sequenceA [[1,2],[3,4],[5,6]]
+-- [[1,3,5],[1,3,6],[1,4,5],[1,4,6],[2,3,5],[2,3,6],[2,4,5],[2,4,6]]
