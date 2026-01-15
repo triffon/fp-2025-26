@@ -1,0 +1,75 @@
+module Applications where
+
+import Prelude hiding ((*>), lookup)
+import Control.Applicative hiding ((*>))
+import Data.Maybe
+import Data (x)
+
+search :: (a -> Bool) -> [a] -> Maybe a 
+search _ [] = Nothing
+search p (x:xs)
+  | p x = Just x
+  | otherwise = search p xs
+-- >>> search odd [1..5]
+-- Just 1
+
+-- >>> search odd $ (*2) <$> [1..5]
+-- Nothing
+
+-- (and x1 x2 x3 ...) --> връща #f, ако има някое или последното ако всички са различти от #f    
+
+{-
+(*>) :: Maybe a1 -> Maybe a2 -> Maybe a2
+Nothing *> _ = Nothing
+_       *> x = x
+-}
+
+(*>) :: Applicative f => f a -> f b -> f b
+y *> x = (const id <$> y) <*> x
+
+-- >>> Just 2 *> Just 3 *> Just 5
+-- Just 5
+
+-- >>> Just 2 *> Nothing *> Just 5
+-- Nothing
+
+type AL k v = [(k,v)]
+
+lookup :: Eq k => k -> AL k v -> Maybe v
+lookup key = fmap snd . search ((key ==) . fst)
+
+al = map (\k -> (k, 10*k)) [1..5]
+
+-- >>> al
+-- [(1,10),(2,20),(3,30),(4,40),(5,50)]
+
+-- >>> lookup 3 al
+-- Just 30
+
+-- >>> lookup 6 al
+-- Nothing
+
+-- >>> lookup 1 al *> lookup 5 al
+-- Just 50
+
+type Tree a = AL a [a]
+
+t = [(1,[2,3]),(2,[4,5])]
+
+children :: Eq a => a -> Tree a -> Maybe [a]
+children = lookup
+
+--- >>> children 1 t
+-- Just [2,3]
+
+parent :: Eq a => a -> Tree a -> Maybe a
+parent x = fmap fst . search (elem x . snd)
+
+-- >>> parent 2 t
+-- Just 1
+
+-- >>> parent 4 t
+-- Just 2
+
+-- >>> parent 1 t
+-- Nothing
