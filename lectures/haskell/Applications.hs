@@ -106,10 +106,5 @@ findAllPaths x y t
 
 
 -- >>> findAllPaths 1 7 bt
--- Couldn't match type: [Integer]
---                with: (Integer, Integer)
--- Expected: BinTree Integer
---   Actual: [(Integer, [Integer])]
--- In the third argument of `findAllPaths', namely `t'
--- In the expression: findAllPaths 1 7 t
--- In an equation for `it_a7zpq': it_a7zpq = findAllPaths 1 7 t
+-- [[1,2,7],[1,3,7]]
+
