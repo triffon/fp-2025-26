@@ -1,0 +1,7 @@
+50
+deposit 100
+withdraw 30
+deposit 50
+withdraw 200
+deposit 25
+withdraw 40
