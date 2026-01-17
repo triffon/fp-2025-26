@@ -55,7 +55,7 @@ al = map (\k -> (k, 10*k)) [1..5]
 
 type Tree a = AL a [a]
 
-t = [(1,[2,3]),(2,[4,5])]
+t = [(1,[2,3]),(2,[4,5]), (3,[6,7])]
 
 children :: Eq a => a -> Tree a -> Maybe [a]
 children = lookup
@@ -82,11 +82,13 @@ bt = [(1,(2,3)),(2,(4,7)),(3,(6,7))]
 findPath :: Eq a => a -> a -> BinTree a -> Maybe [a]
 findPath x y t
   | x == y = Just [x]
-  | otherwise = lookup x t *> ((x :) <$> (findPath l y t <|> findPath r y t))
-   where Just (l, r) = lookup x t 
+--  | otherwise = lookup x t *> ((x :) <$> (findPath l y t <|> findPath r y t))
+--   where Just (l, r) = lookup x t 
+  | otherwise = do (l, r) <- lookup x t
+                   (x :) <$> findPath l y t <|> findPath r y t
 
 -- >>> findPath 1 7 bt
--- Just [1,2,7]
+-- Just [1,7]
 
 -- >>> :t maybeToList
 -- maybeToList :: Maybe a -> [a]
@@ -108,3 +110,19 @@ findAllPaths x y t
 -- >>> findAllPaths 1 7 bt
 -- [[1,2,7],[1,3,7]]
 
+grandparent :: Eq a => a -> Tree a -> Maybe a
+grandparent x t = do p <- parent x t
+                     parent p t
+
+-- >>> grandparent 7 t
+-- Just 1
+
+-- >>> grandparent 2 t
+-- Nothing
+
+grandchildren :: Eq a => a -> Tree a -> [a]
+grandchildren x t = do cs <- maybeToList $ children x t
+                       c <- cs
+                       concat $ maybeToList $ children c t
+
+-- >>> grandchildren 1 t
