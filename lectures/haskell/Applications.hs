@@ -84,7 +84,7 @@ findPath x y t
   | x == y = pure [x]
 --  | otherwise = lookup x t *> ((x :) <$> (findPath l y t <|> findPath r y t))
 --   where Just (l, r) = lookup x t 
-  | otherwise = do (l, r) <- lookup x t
+  | otherwise = do (l, r) <- maybe empty pure $ lookup x t
                    (x :) <$> (findPath l y t <|> findPath r y t)
 
 -- >>> findPath 1 7 bt
@@ -105,7 +105,7 @@ findAllPaths x y t
   | x == y = pure [x]
 --  | otherwise = maybeToList (lookup x t) *> ((x :) <$> (findAllPaths l y t <|> findAllPaths r y t))
 --   where Just (l, r) = lookup x t 
-  | otherwise = do (l, r) <- maybeToList $ lookup x t
+  | otherwise = do (l, r) <- maybe empty pure $ lookup x t
                    (x :) <$> (findAllPaths l y t <|> findAllPaths r y t)
 
 
