@@ -39,3 +39,14 @@ p = do x <- getState
 
 -- >>> runState p 5
 -- (12,10)
+
+q :: State [Int] Int
+q = do x <- getState
+       setState $ doubleHead x
+       y <- getState
+       return $ sum $ take 3 y
+   where doubleHead [] = []
+         doubleHead (x:xs) = 2*x : xs
+
+-- >> runState q [1..5]
+-- (7,[2,2,3,4,5])
