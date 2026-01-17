@@ -106,9 +106,32 @@ findAllPaths x y t
   | otherwise = do (l, r) <- maybe empty pure $ lookup x t
                    (x :) <$> (findAllPaths l y t <|> findAllPaths r y t)
 
-
 -- >>> findAllPaths 1 7 bt
 -- [[1,2,7],[1,3,7]]
+
+searchPath :: (MonadPlus m, Eq a) => a -> a -> BinTree a -> m [a]
+searchPath x y t
+  | x == y    = pure [x]
+  | otherwise = do (l, r) <- maybe empty pure $ lookup x t
+                   (x :) <$> (searchPath l y t <|> searchPath r y t)
+
+-- >>> searchPath 1 7 bt
+-- [1,2,7]
+
+-- >>> searchPath 1 7 bt :: Maybe [Integer]
+-- Just [1,2,7]
+
+-- >>> searchPath 1 7 bt :: [[Integer]]
+-- [[1,2,7],[1,3,7]
+
+-- >>> searchPath 2 3 bt
+-- *** Exception: user error (mzero)
+
+-- >>> searchPath 2 3 bt :: Maybe [Integer]
+-- Nothing
+
+-- >>> searchPath 2 3 bt :: [[Integer]]
+-- []
 
 grandparent :: Eq a => a -> Tree a -> Maybe a
 grandparent x t = do p <- parent x t
