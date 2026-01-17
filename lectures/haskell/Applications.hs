@@ -81,14 +81,14 @@ bt = [(1,(2,3)),(2,(4,7)),(3,(6,7))]
 
 findPath :: Eq a => a -> a -> BinTree a -> Maybe [a]
 findPath x y t
-  | x == y = Just [x]
+  | x == y = pure [x]
 --  | otherwise = lookup x t *> ((x :) <$> (findPath l y t <|> findPath r y t))
 --   where Just (l, r) = lookup x t 
   | otherwise = do (l, r) <- lookup x t
-                   (x :) <$> findPath l y t <|> findPath r y t
+                   (x :) <$> (findPath l y t <|> findPath r y t)
 
 -- >>> findPath 1 7 bt
--- Just [1,7]
+-- Just [1,2,7]
 
 -- >>> :t maybeToList
 -- maybeToList :: Maybe a -> [a]
@@ -102,9 +102,11 @@ findPath x y t
 
 findAllPaths :: Eq a => a -> a -> BinTree a -> [[a]]
 findAllPaths x y t
-  | x == y = [[x]]
-  | otherwise = maybeToList (lookup x t) *> ((x :) <$> (findAllPaths l y t <|> findAllPaths r y t))
-   where Just (l, r) = lookup x t 
+  | x == y = pure [x]
+--  | otherwise = maybeToList (lookup x t) *> ((x :) <$> (findAllPaths l y t <|> findAllPaths r y t))
+--   where Just (l, r) = lookup x t 
+  | otherwise = do (l, r) <- maybeToList $ lookup x t
+                   (x :) <$> (findAllPaths l y t <|> findAllPaths r y t)
 
 
 -- >>> findAllPaths 1 7 bt
