@@ -2,14 +2,12 @@ module Applications where
 
 import Prelude hiding ((*>), lookup)
 import Control.Applicative hiding ((*>))
+import Control.Monad
 import Data.Maybe
-
-guard :: (a -> Bool) -> a -> Maybe a
-guard p x = if p x then Just x else Nothing 
 
 search :: (a -> Bool) -> [a] -> Maybe a 
 search _ [] = Nothing
-search p (x:xs) = guard p x <|> search p xs
+search p (x:xs) = mfilter p (Just x) <|> search p xs
 
 -- >>> search odd [1..5]
 -- Just 1
